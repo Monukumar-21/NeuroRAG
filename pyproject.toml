@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "neurorag"
+version = "0.1.0"
+description = "Production-ready multi-agent RAG scaffold with LangGraph, Ollama, FastAPI, Streamlit, and Neon."
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "fastapi>=0.115.0,<1.0.0",
+  "uvicorn[standard]>=0.30.0,<1.0.0",
+  "streamlit>=1.42.0,<2.0.0",
+  "langgraph>=0.2.50,<1.0.0",
+  "langchain>=0.3.10,<1.0.0",
+  "langchain-ollama>=0.2.0,<1.0.0",
+  "ollama>=0.4.0,<1.0.0",
+  "pydantic>=2.8.0,<3.0.0",
+  "pydantic-settings>=2.4.0,<3.0.0",
+  "python-dotenv>=1.0.1,<2.0.0",
+  "sqlalchemy>=2.0.36,<3.0.0",
+  "psycopg[binary]>=3.2.3,<4.0.0",
+  "pgvector>=0.3.6,<1.0.0",
+  "httpx>=0.28.1,<1.0.0",
+  "structlog>=25.2.0,<26.0.0"
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3.0,<9.0.0",
+  "pytest-cov>=6.0.0,<7.0.0",
+  "ruff>=0.8.0,<1.0.0",
+  "black>=24.10.0,<25.0.0",
+  "mypy>=1.14.0,<2.0.0"
+]
+ingestion = [
+  "docling>=2.20.0,<3.0.0"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/neurorag"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
