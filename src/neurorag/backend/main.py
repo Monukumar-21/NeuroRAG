@@ -6,6 +6,7 @@ from fastapi import FastAPI
 
 from neurorag.backend.routes.health import router as health_router
 from neurorag.config import get_settings
+from neurorag.database.session import check_database_connection
 from neurorag.observability.logging import configure_logging, get_logger
 
 settings = get_settings()
@@ -19,6 +20,11 @@ async def lifespan(app: FastAPI):
 
     runtime_settings = get_settings()
     runtime_settings.validate_for_startup()
+
+    if runtime_settings.require_database:
+        check_database_connection()
+        logger.info("db.ready")
+
     logger.info(
         "api.startup",
         environment=runtime_settings.environment,

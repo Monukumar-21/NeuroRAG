@@ -106,6 +106,42 @@ uv run pytest
 - Streamlit shows ingestion, query, and agent output placeholders.
 - Pytest runs and passes health/config smoke checks.
 
+## Phase 2 Database Setup (Neon + pgvector)
+
+1. Provision a Neon Postgres project and copy the connection string into `.env` as `NEON_DATABASE_URL`.
+
+2. Install or refresh development dependencies:
+
+```bash
+uv sync --group dev
+```
+
+3. Apply schema migrations (creates `documents`, `embeddings`, `query_logs` and enables pgvector):
+
+```bash
+uv run alembic upgrade head
+```
+
+4. Enable runtime DB enforcement:
+
+```bash
+# in .env
+REQUIRE_DATABASE=true
+```
+
+5. Verify extension and table creation in SQL:
+
+```sql
+SELECT extname FROM pg_extension WHERE extname = 'vector';
+SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('documents', 'embeddings', 'query_logs');
+```
+
+6. Optional rollback command:
+
+```bash
+uv run alembic downgrade -1
+```
+
 ## Environment Variables
 
 See `.env.example` for all fields. Key variables:
@@ -114,6 +150,19 @@ See `.env.example` for all fields. Key variables:
 - `NEON_DATABASE_URL`, `REQUIRE_DATABASE`
 - `API_HOST`, `API_PORT`, `STREAMLIT_PORT`
 - `ENABLE_HITL`, `REQUEST_TIMEOUT_SECONDS`
+
+## Alembic Commands
+
+```bash
+# apply all pending migrations
+uv run alembic upgrade head
+
+# inspect migration history
+uv run alembic history
+
+# rollback one revision
+uv run alembic downgrade -1
+```
 
 ## Common Errors and Fixes
 
@@ -139,6 +188,18 @@ Set `NEON_DATABASE_URL` in `.env` with a valid Neon connection string.
 
 Change `API_PORT` or `STREAMLIT_PORT` in `.env`, then restart services.
 
+### 5) `NEON_DATABASE_URL is required for Alembic migrations`
+
+Set `NEON_DATABASE_URL` in `.env` or export it in shell before running Alembic commands.
+
+### 6) `permission denied to create extension "vector"`
+
+Use a Neon role/project where `pgvector` is available, or enable the extension from the Neon console.
+
+### 7) SSL connection failures to Neon
+
+Ensure the connection string includes `?sslmode=require`.
+
 ## Next Phase
 
-Phase 2 provisions Neon PostgreSQL and pgvector schema (`documents`, `embeddings`, `query_logs`).
+Phase 3 implements Docling parsing and structure-aware chunking.
